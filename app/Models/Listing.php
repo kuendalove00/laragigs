@@ -9,16 +9,18 @@ class Listing extends Model
 {
     use HasFactory;
 
-
-    public static function find($id)
+    protected $fillable = ['title', 'company', 'location', 'email', 'website', 'description', 'tags'];
+    public function scopeFilter($query, array $filters)
     {
-        $listings = self::all();
+        if($filters['tag'] ?? false){
+            $query->where('tags','like','%' . request('tag') . '%');
+        }
 
-        foreach($listings as $listing){
-            if($listing['id'] == $id)
-            {
-                return $listing;
-            }
+        if($filters['search'] ?? false)
+        {
+            $query->where('title', 'like', '%'. request('search') . '%')
+            ->orWhere('description', 'like', '%'. request('search') . '%')
+            ->orWhere('tags', 'like', '%'. request('search') . '%');
         }
     }
 }
